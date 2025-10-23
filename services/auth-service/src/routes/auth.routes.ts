@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { authController } from '../controllers/auth.controller';
 import oauthRoutes from './oauth.routes';
+import mfaRoutes from './mfa.routes';
 
 const router = Router();
 
@@ -21,5 +22,8 @@ router.post('/refresh', authController.refreshToken.bind(authController));
 
 // OAuth routes
 router.use('/', oauthRoutes);
+
+// MFA routes
+router.use('/mfa', mfaRoutes);
 
 export default router;

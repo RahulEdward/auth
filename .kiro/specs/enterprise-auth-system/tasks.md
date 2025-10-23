@@ -179,15 +179,15 @@
   - Test error handling for OAuth failures
   - _Requirements: 18.2_
 
-- [ ] 6. Auth Service - Multi-Factor Authentication
-- [ ] 6.1 Implement MFA enrollment for TOTP
+- [x] 6. Auth Service - Multi-Factor Authentication
+- [x] 6.1 Implement MFA enrollment for TOTP
   - Generate TOTP secret using speakeasy
   - Create QR code for authenticator app setup
   - Store encrypted secret temporarily (not yet activated)
   - Return QR code and backup codes to user
   - _Requirements: 3.1, 3.2, 3.5_
 
-- [ ] 6.2 Implement MFA enrollment verification
+- [x] 6.2 Implement MFA enrollment verification
   - Validate TOTP code against temporary secret
   - Activate MFA by storing encrypted secret in user record
   - Generate and hash 10 backup codes
@@ -196,7 +196,7 @@
   - Return success with backup codes
   - _Requirements: 3.2, 3.5_
 
-- [ ] 6.3 Implement MFA verification during login
+- [x] 6.3 Implement MFA verification during login
   - After successful password verification, check if MFA enabled
   - Generate temporary MFA token (5-minute expiration)
   - Store MFA token in Redis with user ID
@@ -204,7 +204,7 @@
   - Do not issue access token yet
   - _Requirements: 3.3_
 
-- [ ] 6.4 Implement MFA code verification endpoint
+- [x] 6.4 Implement MFA code verification endpoint
   - Validate MFA token from Redis
   - Verify TOTP code using speakeasy with 30-second window
   - Check if code was already used (prevent replay)
@@ -214,7 +214,7 @@
   - Return tokens
   - _Requirements: 3.3, 3.4_
 
-- [ ] 6.5 Implement SMS and Email MFA methods
+- [x] 6.5 Implement SMS and Email MFA methods
   - Generate 6-digit random code
   - Store hashed code in Redis with 5-minute TTL
   - Send code via SMS or email based on user preference
@@ -222,7 +222,7 @@
   - Rate limit code generation (max 3 per 5 minutes)
   - _Requirements: 3.1, 3.3, 3.4_
 
-- [ ] 6.6 Implement backup code verification
+- [x] 6.6 Implement backup code verification
   - Accept backup code as alternative to MFA code
   - Verify backup code hash matches one in user record
   - Remove used backup code from user record
@@ -230,14 +230,14 @@
   - Warn user if running low on backup codes
   - _Requirements: 3.5_
 
-- [ ] 6.7 Implement MFA disable endpoint
+- [x] 6.7 Implement MFA disable endpoint
   - Require current password verification
   - Clear MFA secret and backup codes from user record
   - Update mfa_enabled to false
   - Queue notification email about MFA disabled
   - _Requirements: 3.2_
 
-- [ ] 6.8 Write integration tests for MFA flows
+- [x] 6.8 Write integration tests for MFA flows
   - Test TOTP enrollment and verification
   - Test SMS/Email MFA
   - Test backup code usage

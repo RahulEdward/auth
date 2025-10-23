@@ -71,6 +71,17 @@ export class NotificationService {
 
     // TODO: Integrate with email service
   }
+
+  /**
+   * Queue MFA disabled notification
+   */
+  async queueMFADisabled(email: string): Promise<void> {
+    logger.info('MFA disabled notification queued', {
+      email,
+    });
+
+    // TODO: Integrate with email service
+  }
 }
 
 export const notificationService = new NotificationService();
