@@ -245,8 +245,8 @@
   - Test rate limiting on code generation
   - _Requirements: 18.2_
 
-- [ ] 7. User Service - Profile Management
-- [ ] 7.1 Implement get profile endpoint
+- [x] 7. User Service - Profile Management
+- [x] 7.1 Implement get profile endpoint
   - Extract user ID from JWT token
   - Fetch user data from database
   - Check cache first (Redis) before database query
@@ -255,7 +255,7 @@
   - Cache result in Redis with 5-minute TTL
   - _Requirements: 5.1_
 
-- [ ] 7.2 Implement update profile endpoint
+- [x] 7.2 Implement update profile endpoint
   - Validate profile update request
   - Check if email change requested and handle verification
   - Update user record in database
@@ -264,7 +264,7 @@
   - Return updated profile
   - _Requirements: 5.1, 5.5_
 
-- [ ] 7.3 Implement avatar upload endpoint
+- [x] 7.3 Implement avatar upload endpoint
   - Validate file type (JPEG, PNG, WebP) and size (max 5MB)
   - Scan file for malicious content
   - Generate unique filename with UUID
@@ -276,7 +276,7 @@
   - Return avatar URLs
   - _Requirements: 5.2, 5.3, 5.4_
 
-- [ ] 7.4 Implement account deactivation endpoint
+- [x] 7.4 Implement account deactivation endpoint
   - Require password confirmation
   - Update user status to 'deactivated'
   - Revoke all active sessions
@@ -285,7 +285,7 @@
   - Return success response
   - _Requirements: 9.1, 9.2_
 
-- [ ] 7.5 Implement account deletion endpoint
+- [x] 7.5 Implement account deletion endpoint
   - Require password confirmation
   - Update user status to 'deleted' and set deleted_at timestamp
   - Schedule permanent deletion job for 30 days later
@@ -294,7 +294,7 @@
   - Return success response
   - _Requirements: 9.3, 9.4_
 
-- [ ] 7.6 Implement GDPR data export endpoint
+- [x] 7.6 Implement GDPR data export endpoint
   - Collect all user data from database (profile, sessions, subscriptions, payments)
   - Generate JSON export file
   - Upload to object storage with signed URL
@@ -303,7 +303,7 @@
   - Return download URL
   - _Requirements: 9.5, 20.3_
 
-- [ ] 7.7 Implement permanent deletion background job
+- [x] 7.7 Implement permanent deletion background job
   - Query for users with status='deleted' and deleted_at > 30 days ago
   - Anonymize or delete personal data (name, email, phone, bio)
   - Preserve audit logs with anonymized user ID
@@ -311,7 +311,7 @@
   - Mark user as permanently deleted
   - _Requirements: 9.5, 20.3_
 
-- [ ] 7.8 Write integration tests for user management
+- [x] 7.8 Write integration tests for user management
   - Test profile retrieval and updates
   - Test avatar upload and thumbnail generation
   - Test account deactivation and reactivation
