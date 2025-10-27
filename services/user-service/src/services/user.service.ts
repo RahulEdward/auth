@@ -467,6 +467,89 @@ export class UserService {
 
     return deletedCount;
   }
+
+  /**
+   * Get all active sessions for a user
+   */
+  async getSessions(userId: string, currentSessionId?: string): Promise<any[]> {
+    const result = await db.query(
+      `SELECT id, device_info, ip_address, location, created_at, last_activity_at
+       FROM sessions 
+       WHERE user_id = $1 AND expires_at > NOW()
+       ORDER BY last_activity_at DESC`,
+      [userId]
+    );
+
+    const sessions = result.rows.map((row) => ({
+      id: row.id,
+      deviceInfo: row.device_info,
+      ipAddress: row.ip_address,
+      location: row.location,
+      createdAt: row.created_at,
+      lastActivityAt: row.last_activity_at,
+      isCurrent: row.id === currentSessionId,
+    }));
+
+    logger.info('Sessions retrieved', { userId, count: sessions.length });
+
+    return sessions;
+  }
+
+  /**
+   * Revoke a specific session
+   */
+  async revokeSession(userId: string, sessionId: string): Promise<void> {
+    // Verify session belongs to user
+    const result = await db.query(
+      'SELECT token_hash FROM sessions WHERE id = $1 AND user_id = $2',
+      [sessionId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error('Session not found');
+    }
+
+    const tokenHash = result.rows[0].token_hash;
+
+    // Delete from database
+    await db.query('DELETE FROM sessions WHERE id = $1', [sessionId]);
+
+    // Remove from Redis
+    await redis.del(`refresh_token:${tokenHash}`);
+
+    logger.info('Session revoked', { userId, sessionId });
+  }
+
+  /**
+   * Revoke all sessions except current
+   */
+  async revokeAllSessions(userId: string, currentSessionId?: string): Promise<number> {
+    // Get all session token hashes except current
+    const query = currentSessionId
+      ? 'SELECT id, token_hash FROM sessions WHERE user_id = $1 AND id != $2'
+      : 'SELECT id, token_hash FROM sessions WHERE user_id = $1';
+
+    const params = currentSessionId ? [userId, currentSessionId] : [userId];
+    const result = await db.query(query, params);
+
+    // Remove from Redis
+    for (const row of result.rows) {
+      await redis.del(`refresh_token:${row.token_hash}`);
+    }
+
+    // Delete from database
+    const deleteQuery = currentSessionId
+      ? 'DELETE FROM sessions WHERE user_id = $1 AND id != $2'
+      : 'DELETE FROM sessions WHERE user_id = $1';
+
+    await db.query(deleteQuery, params);
+
+    const count = result.rows.length;
+
+    logger.info('All sessions revoked', { userId, count, exceptCurrent: !!currentSessionId });
+
+    return count;
+  }
 }
 
 export const userService = new UserService();

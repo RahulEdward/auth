@@ -1,6 +1,6 @@
 -- Create subscription_plans table
 CREATE TABLE IF NOT EXISTS subscription_plans (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL,
   description TEXT,
   price DECIMAL(10, 2) NOT NULL,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS subscription_plans (
 
 -- Create subscriptions table
 CREATE TABLE IF NOT EXISTS subscriptions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   plan_id UUID NOT NULL REFERENCES subscription_plans(id),
   status VARCHAR(20) NOT NULL CHECK (status IN ('active', 'past_due', 'canceled', 'trialing', 'incomplete')),
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 
 -- Create usage_records table
 CREATE TABLE IF NOT EXISTS usage_records (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   subscription_id UUID NOT NULL REFERENCES subscriptions(id) ON DELETE CASCADE,
   metric VARCHAR(50) NOT NULL,

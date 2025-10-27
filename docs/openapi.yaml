@@ -1,0 +1,291 @@
+openapi: 3.0.3
+info:
+  title: Enterprise Auth System API
+  description: |
+    Complete authentication solution with OAuth, MFA, RBAC, and subscription management.
+    
+    ## Authentication
+    Most endpoints require authentication using JWT Bearer tokens.
+    Include the token in the Authorization header: `Authorization: Bearer <token>`
+    
+    ## Rate Limiting
+    - Anonymous: 100 requests per 15 minutes
+    - Authenticated: 1000 requests per 15 minutes
+    - Admin: 5000 requests per 15 minutes
+    
+    ## Error Responses
+    All errors follow a consistent format with `error.code` and `error.message` fields.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@enterpriseauth.com
+    url: https://enterpriseauth.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+  - url: https://api.enterpriseauth.com/v1
+    description: Production
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: OAuth
+    description: Social login with OAuth providers
+  - name: MFA
+    description: Multi-factor authentication
+  - name: Users
+    description: User profile management
+  - name: Sessions
+    description: Session management
+  - name: RBAC
+    description: Role-based access control
+  - name: Subscriptions
+    description: Subscription management
+  - name: Payments
+    description: Payment processing
+  - name: Admin
+    description: Admin dashboard endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login or token refresh
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: INVALID_CREDENTIALS
+            message:
+              type: string
+              example: Invalid email or password
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [active, inactive, deactivated, deleted]
+        email_verified:
+          type: boolean
+        mfa_enabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        last_login_at:
+          type: string
+          format: date-time
+
+    TokenResponse:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+        - expires_in
+      properties:
+        access_token:
+          type: string
+          description: JWT access token (15 minutes)
+        refresh_token:
+          type: string
+          description: JWT refresh token (30 days)
+        expires_in:
+          type: integer
+          description: Access token expiration in seconds
+          example: 900
+        user:
+          $ref: '#/components/schemas/User'
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Create a new user account with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user_id:
+                    type: string
+                    format: uuid
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+  /users/profile:
+    get:
+      tags:
+        - Users
+      summary: Get current user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /admin/users:
+    get:
+      tags:
+        - Admin
+      summary: Get all users (admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, deactivated]
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer

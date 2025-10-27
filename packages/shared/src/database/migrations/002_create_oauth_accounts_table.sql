@@ -1,6 +1,6 @@
 -- Create oauth_accounts table
 CREATE TABLE IF NOT EXISTS oauth_accounts (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   provider VARCHAR(50) NOT NULL CHECK (provider IN ('google', 'facebook', 'github')),
   provider_account_id VARCHAR(255) NOT NULL,

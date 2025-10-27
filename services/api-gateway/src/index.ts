@@ -4,20 +4,39 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 
 import { config, logger, db, redis } from '@auth/shared';
+import { requestLoggingMiddleware } from './middleware/logging.middleware';
+import { errorHandlerMiddleware, notFoundHandler } from './middleware/error-handler.middleware';
+import { timeoutMiddleware } from './middleware/timeout.middleware';
+import { tracingMiddleware } from './middleware/tracing.middleware';
+import { apiSecurityHeadersMiddleware } from './middleware/security-headers.middleware';
+import { sanitizationMiddleware } from './middleware/sanitization.middleware';
 
 const app = express();
 
+// Request tracing (must be first to generate IDs)
+app.use(tracingMiddleware);
+
+// Request timeout
+app.use(timeoutMiddleware(30000)); // 30 seconds
+
 // Security middleware
 app.use(helmet());
+app.use(apiSecurityHeadersMiddleware);
 app.use(cors({
   origin: config.cors.allowedOrigins,
   credentials: true,
 }));
 
 // Body parsing
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Input sanitization
+app.use(sanitizationMiddleware);
+
+// Request logging
+app.use(requestLoggingMiddleware);
 
 // Health check endpoints
 app.get('/health/live', (_req, res) => {
@@ -57,16 +76,11 @@ app.get('/api/v1', (_req, res) => {
   });
 });
 
-// Error handling
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'An internal error occurred',
-    },
-  });
-});
+// 404 handler (must be after all routes)
+app.use(notFoundHandler);
+
+// Error handling (must be last)
+app.use(errorHandlerMiddleware);
 
 // Start server
 const startServer = async (): Promise<void> => {

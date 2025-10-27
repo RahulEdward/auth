@@ -1,6 +1,10 @@
 import express from 'express';
 import { logger } from '@auth/shared';
 import userRoutes from './routes/user.routes';
+import rbacRoutes from './routes/rbac.routes';
+import subscriptionRoutes from './routes/subscription.routes';
+import paymentRoutes from './routes/payment.routes';
+import adminRoutes from './routes/admin.routes';
 
 const app = express();
 const PORT = process.env.USER_SERVICE_PORT || 3002;
@@ -15,6 +19,10 @@ app.use('/exports', express.static('exports'));
 
 // Routes
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1', rbacRoutes);
+app.use('/api/v1/subscriptions', subscriptionRoutes);
+app.use('/api/v1/payments', paymentRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // Health check
 app.get('/health', (_req, res) => {

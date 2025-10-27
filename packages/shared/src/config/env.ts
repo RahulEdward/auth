@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import Joi from 'joi';
 
+// Load .env from current working directory (project root)
 dotenv.config();
 
 const envSchema = Joi.object({

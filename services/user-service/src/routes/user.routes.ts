@@ -34,4 +34,9 @@ router.delete('/me', userController.deleteAccount.bind(userController));
 // GDPR data export
 router.get('/me/data-export', userController.exportData.bind(userController));
 
+// Session management
+router.get('/me/sessions', userController.getSessions.bind(userController));
+router.delete('/me/sessions/:sessionId', userController.revokeSession.bind(userController));
+router.delete('/me/sessions', userController.revokeAllSessions.bind(userController));
+
 export default router;

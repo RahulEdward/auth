@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "docker-compose up -d && npm run dev:services",
-    "dev:services": "concurrently \"npm run dev -w @auth/api-gateway\" \"npm run dev -w @auth/auth-service\" \"npm run dev -w @auth/user-service\"",
+    "dev:services": "concurrently \"npm run dev -w @auth/api-gateway\" \"npm run dev -w @auth/auth-service\" \"npm run dev -w @auth/user-service\" \"npm run dev -w @auth/notification-service\"",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "lint": "eslint . --ext .ts,.tsx",

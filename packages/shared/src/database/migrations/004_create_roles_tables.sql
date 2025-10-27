@@ -1,6 +1,6 @@
 -- Create roles table
 CREATE TABLE IF NOT EXISTS roles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) UNIQUE NOT NULL,
   description TEXT,
   parent_role_id UUID REFERENCES roles(id) ON DELETE SET NULL,

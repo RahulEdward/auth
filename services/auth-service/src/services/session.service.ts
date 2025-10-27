@@ -32,6 +32,9 @@ export class SessionService {
   async createSession(input: CreateSessionInput): Promise<string> {
     const { userId, refreshToken, deviceInfo, ipAddress } = input;
 
+    // Enforce concurrent session limit
+    await this.enforceSessionLimit(userId);
+
     // Hash the refresh token for storage
     const tokenHash = hashToken(refreshToken);
 
@@ -55,6 +58,43 @@ export class SessionService {
     logger.info('Session created', { userId, sessionId });
 
     return sessionId;
+  }
+
+  /**
+   * Enforce concurrent session limit
+   * Default limit is 5 sessions per user
+   */
+  private async enforceSessionLimit(userId: string, maxSessions: number = 5): Promise<void> {
+    // Get active session count
+    const result = await db.query(
+      'SELECT COUNT(*) as count FROM sessions WHERE user_id = $1 AND expires_at > NOW()',
+      [userId]
+    );
+
+    const currentCount = parseInt(result.rows[0].count, 10);
+
+    if (currentCount >= maxSessions) {
+      // Get oldest session
+      const oldestSession = await db.query(
+        `SELECT id, token_hash FROM sessions 
+         WHERE user_id = $1 AND expires_at > NOW()
+         ORDER BY created_at ASC 
+         LIMIT 1`,
+        [userId]
+      );
+
+      if (oldestSession.rows.length > 0) {
+        const { id, token_hash } = oldestSession.rows[0];
+
+        // Delete oldest session
+        await db.query('DELETE FROM sessions WHERE id = $1', [id]);
+
+        // Remove from Redis
+        await redis.del(`refresh_token:${token_hash}`);
+
+        logger.info('Oldest session revoked due to limit', { userId, sessionId: id });
+      }
+    }
   }
 
   /**

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice {{invoiceNumber}}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4; padding: 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
+          <tr>
+            <td style="background-color: #1F2937; padding: 40px 30px;">
+              <h1 style="color: #ffffff; margin: 0 0 10px 0; font-size: 28px;">Invoice</h1>
+              <p style="color: #9CA3AF; margin: 0; font-size: 16px;">{{invoiceNumber}}</p>
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="padding: 40px 30px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="50%" style="vertical-align: top;">
+                    <p style="color: #666666; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Bill To</p>
+                    <p style="color: #333333; font-size: 16px; margin: 0; line-height: 1.6;">
+                      <strong>{{customerName}}</strong><br>
+                      {{customerEmail}}
+                    </p>
+                  </td>
+                  <td width="50%" style="vertical-align: top; text-align: right;">
+                    <p style="color: #666666; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Invoice Date</p>
+                    <p style="color: #333333; font-size: 16px; margin: 0 0 15px 0;">{{formatDate invoiceDate}}</p>
+                    <p style="color: #666666; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Due Date</p>
+                    <p style="color: #333333; font-size: 16px; margin: 0;">{{formatDate dueDate}}</p>
+                  </td>
+                </tr>
+              </table>
+              
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0; border-top: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb;">
+                <tr>
+                  <th style="text-align: left; padding: 15px 0; color: #666666; font-size: 12px; text-transform: uppercase; font-weight: 600;">Description</th>
+                  <th style="text-align: right; padding: 15px 0; color: #666666; font-size: 12px; text-transform: uppercase; font-weight: 600;">Amount</th>
+                </tr>
+                {{#each items}}
+                <tr>
+                  <td style="padding: 15px 0; color: #333333; font-size: 14px; border-top: 1px solid #f3f4f6;">{{description}}</td>
+                  <td style="padding: 15px 0; color: #333333; font-size: 14px; text-align: right; border-top: 1px solid #f3f4f6;">{{formatCurrency amount ../currency}}</td>
+                </tr>
+                {{/each}}
+              </table>
+              
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td width="70%"></td>
+                  <td width="30%">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 10px 0; color: #666666; font-size: 14px;">Subtotal</td>
+                        <td style="padding: 10px 0; color: #333333; font-size: 14px; text-align: right;">{{formatCurrency subtotal currency}}</td>
+                      </tr>
+                      {{#if tax}}
+                      <tr>
+                        <td style="padding: 10px 0; color: #666666; font-size: 14px;">Tax</td>
+                        <td style="padding: 10px 0; color: #333333; font-size: 14px; text-align: right;">{{formatCurrency tax currency}}</td>
+                      </tr>
+                      {{/if}}
+                      <tr style="border-top: 2px solid #e5e7eb;">
+                        <td style="padding: 15px 0; color: #333333; font-size: 16px; font-weight: bold;">Total</td>
+                        <td style="padding: 15px 0; color: #333333; font-size: 16px; font-weight: bold; text-align: right;">{{formatCurrency total currency}}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              
+              {{#if pdfUrl}}
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="{{pdfUrl}}" style="display: inline-block; padding: 14px 40px; background-color: #4F46E5; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: bold;">
+                      Download PDF
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              {{/if}}
+              
+              <p style="color: #666666; font-size: 12px; line-height: 1.6; margin: 30px 0 0 0; text-align: center;">
+                Thank you for your business!
+              </p>
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="background-color: #f9fafb; padding: 20px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                © {{year}} Auth System. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

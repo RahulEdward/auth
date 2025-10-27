@@ -149,6 +149,74 @@ export class UserController {
       next(error);
     }
   }
+
+  /**
+   * GET /users/me/sessions
+   * Get all active sessions for current user
+   */
+  async getSessions(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId;
+      const currentSessionId = (req as any).user?.sessionId;
+
+      if (!userId) {
+        throw new Error('Authentication required');
+      }
+
+      const sessions = await userService.getSessions(userId, currentSessionId);
+
+      res.status(200).json({ sessions });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * DELETE /users/me/sessions/:sessionId
+   * Revoke a specific session
+   */
+  async revokeSession(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId;
+      const { sessionId } = req.params;
+
+      if (!userId) {
+        throw new Error('Authentication required');
+      }
+
+      await userService.revokeSession(userId, sessionId);
+
+      res.status(200).json({
+        message: 'Session revoked successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * DELETE /users/me/sessions
+   * Revoke all sessions except current
+   */
+  async revokeAllSessions(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = (req as any).user?.userId;
+      const currentSessionId = (req as any).user?.sessionId;
+
+      if (!userId) {
+        throw new Error('Authentication required');
+      }
+
+      const count = await userService.revokeAllSessions(userId, currentSessionId);
+
+      res.status(200).json({
+        message: `${count} session(s) revoked successfully`,
+        revokedCount: count,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const userController = new UserController();
